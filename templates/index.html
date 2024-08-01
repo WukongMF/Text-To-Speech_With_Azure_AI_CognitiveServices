@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Text to Speech Converter</h1>
+    <form id="speechForm">
+        <label for="text">Text:</label>
+        <textarea id="text" name="text" required></textarea>
+
+        <label for="language">Language:</label>
+        <select id="language" name="language" required>
+            <option value="es">Español</option>
+            <option value="en">Inglés</option>
+            <option value="fr">Francés</option>
+        </select>
+
+        <label for="voice">Voice:</label>
+        <select id="voice" name="voice" required></select>
+
+        <label for="rate">Rate:</label>
+        <input type="text" id="rate" name="rate" value="0%" required>
+
+        <button type="submit">Convert to Speech</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#language').change(function() {
+                var language = $(this).val();
+                $.post('/get_voices', {language: language}, function(data) {
+                    var voiceSelect = $('#voice');
+                    voiceSelect.empty();
+                    data.forEach(function(voice) {
+                        voiceSelect.append($('<option>', {
+                            value: voice.short_name,
+                            text: voice.local_name
+                        }));
+                    });
+                });
+            });
+
+            $('#speechForm').submit(function(event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+                $.post('/text_to_speech', formData, function(data) {
+                    alert(data.message);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
